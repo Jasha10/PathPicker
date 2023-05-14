@@ -143,6 +143,19 @@ line option --color.
 For built in commands like `ls`, try `-G` (on Mac, additionally export
 CLICOLOR_FORCE in your environment to anything.)
 
+~ Other Environment Variables ~
+
+FPP has some facility for picking out line numbers from filenames. For example,
+if you select a file named "foo.txt:10", then fpp will attempt to open the file
+`foo.txt` and move the cursor to line 10.
+
+When using command mode, if the environment variable $FPP_LINENUM_SEP is
+non-empty then this variable will be used to separate the filename from the
+line number when formatting the path that will be passed to the given command.
+For example, if $FPP_LINENUM_SEP is set to "+" and the user selects a file named
+"foo.txt:10", then the command `my_command $F` will be invoked as
+`my_command foo.txt+10`.
+
 """
 
 USAGE_COMMAND_LINE = """
