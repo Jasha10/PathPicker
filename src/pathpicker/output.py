@@ -140,7 +140,11 @@ def compose_command(command: str, line_objs: List[LineMatch]) -> str:
 
 def compose_file_command(command: str, line_objs: List[LineMatch]) -> str:
     command = command.encode().decode("utf-8")
-    paths = [f"'{line_obj.get_path()}'" for line_obj in line_objs]
+    fpp_linenum_sep = os.environ.get("FPP_LINENUM_SEP")
+    if fpp_linenum_sep:
+        paths = [f"'{line_obj.get_path()}{fpp_linenum_sep}{line_obj.get_line_num()}'" for line_obj in line_objs]
+    else:
+        paths = [f"'{line_obj.get_path()}'" for line_obj in line_objs]
     path_str = " ".join(paths)
     if "$F" in command:
         command = command.replace("$F", path_str)
