@@ -96,7 +96,12 @@ def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> st
         cmd += f" +{first_line_num} {first_file_path}"
         for (file_path, line_num) in files_and_line_numbers[1:]:
             cmd += f' +"tabnew +{line_num} {file_path}"'
-    elif editor in ["vim", "mvim", "nvim"] and not os.environ.get("FPP_DISABLE_SPLIT"):
+    elif editor in [
+        "vim",
+        "mvim",
+        "nvim",
+        "nvr",  # github.com/jasha10/neovim-remote
+    ] and not os.environ.get("FPP_DISABLE_SPLIT"):
         first_file_path, first_line_num = files_and_line_numbers[0]
         cmd += f" +{first_line_num} {first_file_path}"
         for (file_path, line_num) in files_and_line_numbers[1:]:
@@ -106,7 +111,16 @@ def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> st
             editor_without_args = editor.split()[0]
             if (
                 editor_without_args
-                in ["vi", "nvim", "nano", "joe", "emacs", "emacsclient", "micro"]
+                in [
+                    "vi",
+                    "nvim",
+                    "nvr",  # github.com/jasha10/neovim-remote
+                    "nano",
+                    "joe",
+                    "emacs",
+                    "emacsclient",
+                    "micro",
+                ]
                 and line_num != 0
             ):
                 cmd += f" +{line_num} '{file_path}'"
