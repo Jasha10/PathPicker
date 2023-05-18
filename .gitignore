@@ -12,3 +12,4 @@ debian/usr/
 pathpicker*.deb
 # man page leftovers
 manpage.adoc
+*.egg-info/

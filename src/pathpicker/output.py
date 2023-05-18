@@ -88,30 +88,30 @@ def get_editor_and_path() -> Tuple[str, str]:
     return "vim", "vim"
 
 
+def join_files_into_command_with_entry_point(
+    entry_point_name: str, files_and_line_numbers: List[Tuple[str, int]]
+) -> str:
+    """
+    entry_points API allowing plugins for custom editor support.
+    """
+    import importlib.metadata
+
+    entry_points = importlib.metadata.entry_points(group="pathpicker.editor")
+    entry_point = entry_points[entry_point_name].load()
+    composed_command = entry_point(files_and_line_numbers)
+    return composed_command
+
+
 def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> str:
+
+    # Check if $FPP_EDITOR_ENTRY_POINT is set
+    # If so, load the entry point and call it with the files_and_line_numbers
+    if os.environ.get("FPP_EDITOR_ENTRY_POINT"):
+        return join_files_into_command_with_entry_point(
+            os.environ["FPP_EDITOR_ENTRY_POINT"], files_and_line_numbers
+        )
+
     editor, editor_path = get_editor_and_path()
-    # TODO: consider adding entry_points API allowing plugins for custom editor support.
-    # Sketch:
-    # ```python
-    # # Check if $FPP_JOIN_FILES_INTO_COMMAND_ENTRY_POINT is set, or if `editor` appears as an entry point
-    # # If so, load it and call it with the files_and_line_numbers
-    # # If it returns a string, use that as the command
-    # # If it returns None, use the default behavior
-    # # If it raises an exception, log it and use the default behavior
-    # import importlib.metadata
-    # entry_points = importlib.metadata.entry_points("fpp.join_files_into_command")
-    # entry_point_name: str = os.environ.get("FPP_JOIN_FILES_INTO_COMMAND_ENTRY_POINT") or editor
-    # if entry_point_name in entry_points.names:
-    #     try:
-    #         entry_point = entry_points[entry_point_name].load()
-    #         composed_command = entry_point(editor, editor_path, files_and_line_numbers)
-    #         if composed_command is not None:
-    #             assert isinstance(composed_command, str)
-    #             return composed_command
-    #     except Exception as e:
-    #         # Log entry point name, args, and exception
-    #         logger.add_event("entry_point_exception", entry_point_name, files_and_line_numbers, e)
-    # ```
     cmd = editor_path + " "
     if editor == "vim -p":
         first_file_path, first_line_num = files_and_line_numbers[0]
