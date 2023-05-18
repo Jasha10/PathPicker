@@ -17,7 +17,12 @@ while [ -h "$SOURCE" ]; do
 done
 BASEDIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-PYTHONCMD="python3"
+# If installed in a directory with executable `./python3`, else use `python3`
+if [ -x "$BASEDIR/python3" ]; then
+  PYTHONCMD="$BASEDIR/python3"
+else
+  PYTHONCMD="python3"
+fi
 NONINTERACTIVE=false
 
 # Setup according to XDG/Freedesktop standards as specified by
@@ -32,14 +37,14 @@ fi
 
 function doProgram {
   # process input from pipe and store as pickled file
-  $PYTHONCMD "$BASEDIR/src/process_input.py" "$@"
+  $PYTHONCMD -m "pathpicker.process_input" "$@"
   # if it failed, just fail now and exit the script
   # this works for the looping -ko case as well
   if [[ $? != 0 ]]; then exit $?; fi
   # now close stdin and choose input...
   exec 0<&-
 
-  $PYTHONCMD "$BASEDIR/src/choose.py" "$@" < /dev/tty
+  $PYTHONCMD -m "pathpicker.choose" "$@" < /dev/tty
   # Determine if running from within vim shell
   IFLAG=""
   if [ -z "$VIMRUNTIME" -a "$NONINTERACTIVE" = false ]; then
@@ -69,15 +74,16 @@ function doProgram {
 for opt in "$@"; do
   if [ "$opt" == "--debug" ]; then
     echo "Executing from '$BASEDIR'"
+    echo "Using python command '$PYTHONCMD', located at '$(which $PYTHONCMD)'"
   elif [ "$opt" == "--version" ]; then
-    VERSION="$($PYTHONCMD "$BASEDIR/src/version.py")"
+    VERSION="$($PYTHONCMD -m "pathpicker.version")"
     echo "fpp version $VERSION"
     exit 0
   elif [ "$opt" == "--python2" ]; then
     echo "Python 2 is no longer supported. Please use Python 3."
     exit 1
   elif [ "$opt" == "--help" -o "$opt" == "-h" ]; then
-    $PYTHONCMD "$BASEDIR/src/print_help.py"
+    $PYTHONCMD -m "pathpicker.print_help"
     exit 0
   elif [ "$opt" == "--record" -o "$opt" == "-r" ]; then
     echo "Recording input and output..."

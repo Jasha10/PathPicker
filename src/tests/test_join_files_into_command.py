@@ -46,3 +46,13 @@ def test_FPP_DISABLE_SPLIT(
         command
         == f"{nvim_like_editor}  +1 '/home/user/file1.txt' +2 '/home/user/file2.txt' +3 '/home/user/file3.txt'"
     )
+
+def test_FPP_EDITOR_ENTRY_POINT(
+    files_and_line_numbers: list[tuple[str, int]]
+) -> None:
+    os.environ["FPP_EDITOR_ENTRY_POINT"] = "test_editor_entry_point"
+    command = join_files_into_command(files_and_line_numbers)
+    assert (
+        command
+        == f"test_editor /home/user/file1.txt:1 /home/user/file2.txt:2 /home/user/file3.txt:3"
+    )

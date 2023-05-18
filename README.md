@@ -41,53 +41,29 @@ PathPicker requires Python 3.
 
 ## Installing PathPicker
 
-### Homebrew
+The recommended way to install Jasha's fork of PathPicker is with [pipx](https://pypa.github.io/pipx/).
 
-Installing PathPicker is easiest with [Homebrew for mac](http://brew.sh/):
-
-* `brew update` (to pull down the recipe since it is new)
-* `brew install fpp`
-
-### Linux
-
-On Debian-based systems, run these steps:
-[fakeroot](https://wiki.debian.org/FakeRoot):
+### Pipx
 
 ```
-$ git clone https://github.com/facebook/PathPicker.git
-$ cd PathPicker/debian
-$ ./package.sh
-$ ls ../pathpicker_*_all.deb
+pipx install git+https://github.com/jasha10/PathPicker
+# OR
+git clone https://github.com/jasha10/PathPicker ~/opt/PathPicker
+pipx install --editable ~/opt/PathPicker
 ```
-
-On Arch Linux, PathPicker can be installed from Arch User Repository (AUR).
-([The AUR fpp-git package](https://aur.archlinux.org/packages/fpp-git/).)
-
-If you are on another system, or prefer manual installation, please
-follow the instructions given below.
-
-### Manual Installation
-
-If you are on a system without Homebrew, it's still quite easy to install
-PathPicker, since it's essentially just a bash script that calls some Python. These
-steps more-or-less outline the process:
-
-* `cd /usr/local/ # or wherever you install apps`
-* `git clone https://github.com/facebook/PathPicker.git`
-* `cd PathPicker/`
-
-Here we create a symbolic link from the bash script in the repo
-to `/usr/local/bin/` which is assumed to be in the current
-`$PATH`:
-
-* `ln -s "$(pwd)/fpp" /usr/local/bin/fpp`
-* `fpp --help # should work!`
 
 ### Add-ons
 
 For tmux users, you can additionally install `tmux-fpp` which adds a key combination to run PathPicker on the last received `stdout`.
 This makes jumping into file selection mode even easier. ([Check it out here!](https://github.com/tmux-plugins/tmux-fpp))
 
+#### $FPP_EDITOR_ENTRY_POINT plugins
+
+Jasha's fork of fpp supports editor plugins via an [entry point](https://packaging.python.org/en/latest/specifications/entry-points/)
+named `pathpicker.editor`.
+
+See for example [jasha10/PathPicker-nvr](https://github.com/jasha10/PathPicker-nvr).
+See ./src/pathpicker/output.py for the interface.
 
 ## Advanced Functionality
 
