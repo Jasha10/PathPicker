@@ -46,9 +46,9 @@ The recommended way to install Jasha's fork of PathPicker is with [pipx](https:/
 ### Pipx
 
 ```
-pipx install git+https://github.com/jasha10/PathPicker
+pipx install git+https://github.com/jasha10/PathPicker@jasha-dev
 # OR
-git clone https://github.com/jasha10/PathPicker ~/opt/PathPicker
+git clone https://github.com/jasha10/PathPicker ~/opt/PathPicker --branch jasha-dev
 pipx install --editable ~/opt/PathPicker
 ```
 
