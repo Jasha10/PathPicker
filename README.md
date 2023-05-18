@@ -62,7 +62,6 @@ This makes jumping into file selection mode even easier. ([Check it out here!](h
 Jasha's fork of fpp supports editor plugins via an [entry point](https://packaging.python.org/en/latest/specifications/entry-points/)
 named `pathpicker.editor`.
 
-See for example [jasha10/PathPicker-nvr](https://github.com/jasha10/PathPicker-nvr).
 See ./src/pathpicker/output.py for the interface.
 
 ## Advanced Functionality
