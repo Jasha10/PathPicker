@@ -17,7 +17,8 @@ while [ -h "$SOURCE" ]; do
 done
 BASEDIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-# If installed in a directory with executable `./python3`, else use `python3`
+# If installed in a directory with executable `./python3`, else use `python3`.
+# This is useful for virtualenvs, e.g. if installed with `pipx`
 if [ -x "$BASEDIR/python3" ]; then
   PYTHONCMD="$BASEDIR/python3"
 else
