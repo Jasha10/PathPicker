@@ -5,17 +5,17 @@
 
 import os
 import re
-import unittest
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from pytest import mark, param
 
 from tests.lib import screen_test_runner
 
-EXPECTED_DIR = "./expected/"
+EXPECTED_DIR = Path("./expected/")
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScreenTestCase:
     name: str
     input_file: str = "gitDiff.txt"
@@ -196,6 +196,10 @@ SCREEN_TEST_CASES: list[ScreenTestCase] = [
     ),
 ]
 
+assert len(SCREEN_TEST_CASES) == len(
+    set(test_case.name for test_case in SCREEN_TEST_CASES)
+)  # assert no cases were copy-pasta'd
+
 
 class TestScreenLogic:
     @mark.parametrize(
@@ -224,7 +228,7 @@ class TestScreenLogic:
     def compare_to_expected(
         self, test_case: ScreenTestCase, screen_data: tuple[list[str], list[str]]
     ) -> None:
-        TestScreenLogic.maybe_make_expected_dir()
+        self.maybe_make_expected_dir()
         actual_lines, _actual_attributes = screen_data
 
         if test_case.with_attributes:
@@ -242,10 +246,8 @@ class TestScreenLogic:
             actual_merged_lines.append(attribute_line)
 
         self.output_if_not_file(test_name, "\n".join(actual_merged_lines))
-        file = open(TestScreenLogic.get_expected_file(test_name))
-        expected_merged_lines = file.read().split("\n")
-        file.close()
-
+        expected_file = self.get_expected_file(test_name)
+        expected_merged_lines = expected_file.read_text().split("\n")
         self.assert_equal_lines(test_name, actual_merged_lines, expected_merged_lines)
 
     def compare_lines_to_expected(
@@ -253,36 +255,26 @@ class TestScreenLogic:
     ) -> None:
         self.output_if_not_file(test_name, "\n".join(actual_lines))
 
-        file = open(TestScreenLogic.get_expected_file(test_name))
+        file = open(self.get_expected_file(test_name))
         expected_lines = file.read().split("\n")
         file.close()
 
         self.assert_equal_lines(test_name, actual_lines, expected_lines)
 
     def output_if_not_file(self, test_name: str, output: str) -> None:
-        expected_file = TestScreenLogic.get_expected_file(test_name)
-        if os.path.isfile(expected_file):
-            return
-
-        print(f"Could not find file {expected_file} so outputting...")
-        file = open(expected_file, "w")
-        file.write(output)
-        file.close()
-        self.fail(f"File outputted, please inspect {expected_file} for correctness")
-
-    def assert_equal_num_lines(
-        self, test_name: str, actual_lines: list[str], expected_lines: list[str]
-    ) -> None:
-        assert len(actual_lines) == len(expected_lines), (
-            f"{test_name} test: Actual lines was {len(actual_lines)} "
-            f"but expected lines was {len(expected_lines)}"
-        )
+        expected_file = self.get_expected_file(test_name)
+        if not expected_file.is_file():
+            print(f"Could not find file {expected_file} so outputting...")
+            expected_file.write_text(output)
+            assert (
+                False
+            ), f"File outputted, please inspect {expected_file} for correctness"
 
     def assert_equal_lines(
         self, test_name: str, actual_lines: list[str], expected_lines: list[str]
     ) -> None:
         self.assert_equal_num_lines(test_name, actual_lines, expected_lines)
-        expected_file = TestScreenLogic.get_expected_file(test_name)
+        expected_file = self.get_expected_file(test_name)
         glob_needle = " (glob)"
         for index, expected_line in enumerate(expected_lines):
             actual_line = actual_lines[index]
@@ -297,6 +289,14 @@ class TestScreenLogic:
             else:
                 assert expected_line == actual_line, error_message
 
+    def assert_equal_num_lines(
+        self, test_name: str, actual_lines: list[str], expected_lines: list[str]
+    ) -> None:
+        assert len(actual_lines) == len(expected_lines), (
+            f"{test_name} test: Actual lines was {len(actual_lines)} "
+            f"but expected lines was {len(expected_lines)}"
+        )
+
     def assert_equal_with_glob(
         self, expected_line: str, actual_line: str, error_message: str
     ) -> None:
@@ -305,14 +305,10 @@ class TestScreenLogic:
         assert re.match(pattern, actual_line), error_message
 
     @staticmethod
-    def get_expected_file(test_name: str) -> str:
-        return os.path.join(EXPECTED_DIR, test_name + ".txt")
+    def get_expected_file(test_name: str) -> Path:
+        return Path(os.path.join(EXPECTED_DIR, test_name + ".txt"))
 
     @staticmethod
     def maybe_make_expected_dir() -> None:
         if not os.path.isdir(EXPECTED_DIR):
             os.makedirs(EXPECTED_DIR)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -2,8 +2,8 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+
 import os
-import unittest
 from typing import Dict, List, NamedTuple, Optional
 
 from pathpicker import parse
@@ -344,7 +344,7 @@ ALL_INPUT_TEST_CASES: List[AllInputTestCase] = [
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestParseFunction(unittest.TestCase):
+class TestParseFunction:
     def test_prepend_dir(self) -> None:
         for test_case in PREPEND_DIR_TEST_CASES:
             in_file = test_case["in"]
@@ -354,7 +354,7 @@ class TestParseFunction(unittest.TestCase):
             if in_file[0:2] == "~/":
                 expected = os.path.expanduser(expected)
 
-            self.assertEqual(expected, result)
+            assert expected == result
         print(f"Tested {len(PREPEND_DIR_TEST_CASES)} dir cases.")
 
     def test_file_fuzz(self) -> None:
@@ -381,9 +381,7 @@ class TestParseFunction(unittest.TestCase):
         if not result:
             raise AssertionError(f'"{file_line}": no result')
         line_obj = LineMatch(FormattedText(file_line), result, 0)
-        self.assertTrue(
-            not line_obj.is_resolvable(), f'"{file_line}" should not be resolvable'
-        )
+        assert not line_obj.is_resolvable(), f'"{file_line}" should not be resolvable'
         print("Tested unresolvable case.")
 
     def test_resolvable(self) -> None:
@@ -393,10 +391,10 @@ class TestParseFunction(unittest.TestCase):
             if not result:
                 raise AssertionError(f'"{test_case.test_input}": no result')
             line_obj = LineMatch(FormattedText(test_case.test_input), result, 0)
-            self.assertTrue(
-                line_obj.is_resolvable(),
-                f'Line "{test_case.test_input}" was not resolvable',
-            )
+            assert (
+                line_obj.is_resolvable()
+            ), f'Line "{test_case.test_input}" was not resolvable'
+
         print(f"Tested {len(to_check)} resolvable cases.")
 
     def test_file_match(self) -> None:
@@ -409,18 +407,16 @@ class TestParseFunction(unittest.TestCase):
             result = parse.match_line(test_case.test_input, False, True)
 
             if not result:
-                self.assertTrue(
-                    test_case.match is None,
-                    f'Expected a match "{test_case.match}" where one did not occur.',
-                )
+                assert (
+                    test_case.match is None
+                ), f'Expected a match "{test_case.match}" where one did not occur.'
+
                 continue
 
             (match, _, _) = result
-            self.assertEqual(
-                match,
-                test_case.match,
-                f'Line "{test_case.test_input}" did not match.',
-            )
+            assert (
+                match == test_case.match
+            ), f'Line "{test_case.test_input}" did not match.'
 
         print(f"Tested {len(ALL_INPUT_TEST_CASES)} cases for all-input matching.")
 
@@ -434,27 +430,16 @@ class TestParseFunction(unittest.TestCase):
             validate_file_exists=test_case.validate_file_exists,
         )
         if not result:
-            self.assertFalse(
-                test_case.match,
-                f'Line "{test_case.test_input}" did not match any regex',
-            )
+            assert (
+                not test_case.match
+            ), f'Line "{test_case.test_input}" did not match any regex'
             return
 
         file, num, _match = result
-        self.assertTrue(test_case.match, f'Line "{test_case.test_input}" did match')
+        assert test_case.match, f'Line "{test_case.test_input}" did match'
 
-        self.assertEqual(
-            test_case.file,
-            file,
-            f"files not equal |{test_case.file}| |{file}|",
-        )
+        assert test_case.file == file, f"files not equal |{test_case.file}| |{file}|"
 
-        self.assertEqual(
-            test_case.num,
-            num,
-            f"num matches not equal {test_case.num} {num} for {test_case.test_input}",
-        )
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert (
+            test_case.num == num
+        ), f"num matches not equal {test_case.num} {num} for {test_case.test_input}"
