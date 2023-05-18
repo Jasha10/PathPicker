@@ -88,30 +88,7 @@ def get_editor_and_path() -> Tuple[str, str]:
     return "vim", "vim"
 
 
-def join_files_into_command_with_entry_point(
-    entry_point_name: str, files_and_line_numbers: List[Tuple[str, int]]
-) -> str:
-    """
-    entry_points API allowing plugins for custom editor support.
-    """
-    import importlib.metadata
-
-    entry_points = importlib.metadata.entry_points(group="pathpicker.editor")
-    entry_point = entry_points[entry_point_name].load()
-    composed_command = entry_point(files_and_line_numbers)
-    assert isinstance(composed_command, str)
-    return composed_command
-
-
 def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> str:
-
-    # Check if $FPP_EDITOR_ENTRY_POINT is set
-    # If so, load the entry point and call it with the files_and_line_numbers
-    if os.environ.get("FPP_EDITOR_ENTRY_POINT"):
-        return join_files_into_command_with_entry_point(
-            os.environ["FPP_EDITOR_ENTRY_POINT"], files_and_line_numbers
-        )
-
     editor, editor_path = get_editor_and_path()
     cmd = editor_path + " "
     if editor == "vim -p":
@@ -119,12 +96,7 @@ def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> st
         cmd += f" +{first_line_num} {first_file_path}"
         for (file_path, line_num) in files_and_line_numbers[1:]:
             cmd += f' +"tabnew +{line_num} {file_path}"'
-    elif editor in [
-        "vim",
-        "mvim",
-        "nvim",
-        "nvr",  # github.com/jasha10/neovim-remote
-    ] and not os.environ.get("FPP_DISABLE_SPLIT"):
+    elif editor in ["vim", "mvim", "nvim"] and not os.environ.get("FPP_DISABLE_SPLIT"):
         first_file_path, first_line_num = files_and_line_numbers[0]
         cmd += f" +{first_line_num} {first_file_path}"
         for (file_path, line_num) in files_and_line_numbers[1:]:
@@ -134,16 +106,7 @@ def join_files_into_command(files_and_line_numbers: List[Tuple[str, int]]) -> st
             editor_without_args = editor.split()[0]
             if (
                 editor_without_args
-                in [
-                    "vi",
-                    "nvim",
-                    "nvr",  # github.com/jasha10/neovim-remote
-                    "nano",
-                    "joe",
-                    "emacs",
-                    "emacsclient",
-                    "micro",
-                ]
+                in ["vi", "nvim", "nano", "joe", "emacs", "emacsclient", "micro"]
                 and line_num != 0
             ):
                 cmd += f" +{line_num} '{file_path}'"
@@ -179,34 +142,8 @@ def compose_command(command: str, line_objs: List[LineMatch]) -> str:
 
 
 def compose_file_command(command: str, line_objs: List[LineMatch]) -> str:
-    # TODO: consider adding entry_points API allowing plugins for custom file command support.
-    # Sketch:
-    # ```python
-    # # Check if $FPP_COMPOSE_FILE_COMMAND_ENTRY_POINT is set, or if `command` appears as an entry point
-    # # If so, load it and call it with the line_objs
-    # # If it returns a string, use that as the command
-    # # If it returns None, use the default behavior
-    # # If it raises an exception, log it and use the default behavior
-    # import importlib.metadata
-    # entry_points = importlib.metadata.entry_points("fpp.compose_file_command")
-    # entry_point_name: str = os.environ.get("FPP_COMPOSE_FILE_COMMAND_ENTRY_POINT") or command
-    # if entry_point_name in entry_points.names:
-    #     try:
-    #         entry_point = entry_points[entry_point_name].load()
-    #         composed_command = entry_point(command, line_objs)
-    #         if composed_command is not None:
-    #             assert isinstance(composed_command, str)
-    #             return composed_command
-    #     except Exception as e:
-    #         # Log entry point name, args, and exception
-    #         logger.add_event("entry_point_exception", entry_point_name, line_objs, e)
-    # ```
     command = command.encode().decode("utf-8")
-    fpp_linenum_sep = os.environ.get("FPP_LINENUM_SEP")
-    if fpp_linenum_sep:
-        paths = [f"'{line_obj.get_path()}{fpp_linenum_sep}{line_obj.get_line_num()}'" for line_obj in line_objs]
-    else:
-        paths = [f"'{line_obj.get_path()}'" for line_obj in line_objs]
+    paths = [f"'{line_obj.get_path()}'" for line_obj in line_objs]
     path_str = " ".join(paths)
     if "$F" in command:
         command = command.replace("$F", path_str)

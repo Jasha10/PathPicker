@@ -14,10 +14,6 @@ requires-python = ">=3.7"
 # Install the fpp executable:
 script-files = ["fpp"]
 
-[project.entry-points."pathpicker.editor"]
-# Advertise test entry point to PathPicker:
-test_editor_entry_point = "tests.entry_point_for_testing:compose_command"
-
 [project.optional-dependencies]
 dev = [
   "autoimport",

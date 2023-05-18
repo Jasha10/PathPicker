@@ -57,12 +57,6 @@ pipx install --editable ~/opt/PathPicker
 For tmux users, you can additionally install `tmux-fpp` which adds a key combination to run PathPicker on the last received `stdout`.
 This makes jumping into file selection mode even easier. ([Check it out here!](https://github.com/tmux-plugins/tmux-fpp))
 
-#### $FPP_EDITOR_ENTRY_POINT plugins
-
-Jasha's fork of fpp supports editor plugins via an [entry point](https://packaging.python.org/en/latest/specifications/entry-points/)
-named `pathpicker.editor`.
-
-See ./src/pathpicker/output.py for the interface.
 
 ## Advanced Functionality
 
