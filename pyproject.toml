@@ -20,15 +20,16 @@ test_editor_entry_point = "tests.entry_point_for_testing:compose_command"
 
 [project.optional-dependencies]
 dev = [
+  "autoimport",
   "black",
   "flake8",
-  "flake8-black",
-  "flake8-bugbear",
-  "flake8-comprehensions",
-  "flake8-copyright",
-  "flake8-eradicate",
-  "flake8-isort",
-  "flake8-use-fstring",
+  # "flake8-black",
+  # "flake8-bugbear",
+  # "flake8-comprehensions",
+  # "flake8-copyright",
+  # "flake8-eradicate",
+  # "flake8-isort",
+  # "flake8-use-fstring",
   "isort",
   "mypy",
   "pylint",

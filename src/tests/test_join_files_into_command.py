@@ -6,8 +6,7 @@ from pytest import fixture
 from pathpicker.output import join_files_into_command
 
 
-@fixture  # type: ignore[misc]
-# Untyped decorator makes function "files_and_line_numbers" untyped
+@fixture
 def files_and_line_numbers() -> list[tuple[str, int]]:
     return [
         ("/home/user/file1.txt", 1),
@@ -16,8 +15,7 @@ def files_and_line_numbers() -> list[tuple[str, int]]:
     ]
 
 
-@fixture(params=["nvim", "nvr"])  # type: ignore[misc]
-# Untyped decorator makes function "files_and_line_numbers" untyped
+@fixture(params=["nvim", "nvr"])
 def nvim_like_editor(request: Any) -> str:
     _editor = request.param
     assert isinstance(_editor, str)

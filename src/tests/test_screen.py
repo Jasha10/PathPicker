@@ -2,43 +2,33 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+
 import os
 import re
 import unittest
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass, field
+
+from pytest import mark, param
 
 from tests.lib import screen_test_runner
 
 EXPECTED_DIR = "./expected/"
 
 
-# Using NamedTuple here will require some ugly hacks to properly support
-# empty list and empty dict as default values.
-class ScreenTestCase:  # pylint: disable=too-few-public-methods
-    def __init__(
-        self,
-        name: str,
-        input_file: str = "gitDiff.txt",
-        inputs: Optional[List[str]] = None,
-        args: Optional[List[str]] = None,
-        screen_config: Optional[Dict[str, int]] = None,
-        past_screen: Optional[int] = None,
-        past_screens: Optional[List[int]] = None,
-        with_attributes: bool = False,
-        validate_file_exists: bool = False,
-    ):
-        self.name = name
-        self.input_file = input_file
-        self.inputs = inputs if inputs is not None else []
-        self.args = args if args is not None else []
-        self.screen_config = screen_config if screen_config is not None else {}
-        self.past_screen = past_screen
-        self.past_screens = past_screens
-        self.with_attributes = with_attributes
-        self.validate_file_exists = validate_file_exists
+@dataclass
+class ScreenTestCase:
+    name: str
+    input_file: str = "gitDiff.txt"
+    inputs: list[str] = field(default_factory=list)
+    args: list[str] = field(default_factory=list)
+    screen_config: dict[str, int] = field(default_factory=dict)
+    past_screen: int | None = None
+    past_screens: list[int] | None = None
+    with_attributes: bool = False
+    validate_file_exists: bool = False
 
 
-SCREEN_TEST_CASES: List[ScreenTestCase] = [
+SCREEN_TEST_CASES: list[ScreenTestCase] = [
     ScreenTestCase("simpleLoadAndQuit"),
     ScreenTestCase(
         "tallLoadAndQuit",
@@ -207,38 +197,32 @@ SCREEN_TEST_CASES: List[ScreenTestCase] = [
 ]
 
 
-class TestScreenLogic(unittest.TestCase):
-    def test_screen_inputs(self) -> None:
-        seen_cases: Dict[str, bool] = {}
-        for test_case in SCREEN_TEST_CASES:
-            # make sure its not copy pasta-ed
-            test_name = test_case.name
-            self.assertFalse(
-                seen_cases.get(test_name, False), f"Already seen {test_name}"
-            )
-            seen_cases[test_name] = True
+class TestScreenLogic:
+    @mark.parametrize(
+        "test_case",
+        [param(test_case, id=test_case.name) for test_case in SCREEN_TEST_CASES],
+    )
+    def test_screen_inputs(self, test_case: ScreenTestCase) -> None:
+        char_inputs = ["q"]  # we always quit at the end
+        char_inputs = test_case.inputs + char_inputs
 
-            char_inputs = ["q"]  # we always quit at the end
-            char_inputs = test_case.inputs + char_inputs
+        args = test_case.args
+        screen_data = screen_test_runner.get_rows_from_screen_run(
+            input_file=test_case.input_file,
+            char_inputs=char_inputs,
+            screen_config=test_case.screen_config,
+            print_screen=False,
+            past_screen=test_case.past_screen,
+            past_screens=test_case.past_screens,
+            args=args,
+            validate_file_exists=test_case.validate_file_exists,
+            all_input=("-ai" in args or "--all-input" in args),
+        )
 
-            args = test_case.args
-            screen_data = screen_test_runner.get_rows_from_screen_run(
-                input_file=test_case.input_file,
-                char_inputs=char_inputs,
-                screen_config=test_case.screen_config,
-                print_screen=False,
-                past_screen=test_case.past_screen,
-                past_screens=test_case.past_screens,
-                args=args,
-                validate_file_exists=test_case.validate_file_exists,
-                all_input=("-ai" in args or "--all-input" in args),
-            )
-
-            self.compare_to_expected(test_case, screen_data)
-            print(f"Tested {test_name}")
+        self.compare_to_expected(test_case, screen_data)
 
     def compare_to_expected(
-        self, test_case: ScreenTestCase, screen_data: Tuple[List[str], List[str]]
+        self, test_case: ScreenTestCase, screen_data: tuple[list[str], list[str]]
     ) -> None:
         TestScreenLogic.maybe_make_expected_dir()
         actual_lines, _actual_attributes = screen_data
@@ -249,10 +233,10 @@ class TestScreenLogic(unittest.TestCase):
             self.compare_lines_to_expected(test_case.name, actual_lines)
 
     def compare_lines_and_attributes_to_expected(
-        self, test_name: str, screen_data: Tuple[List[str], List[str]]
+        self, test_name: str, screen_data: tuple[list[str], list[str]]
     ) -> None:
         actual_lines, actual_attributes = screen_data
-        actual_merged_lines: List[str] = []
+        actual_merged_lines: list[str] = []
         for actual_line, attribute_line in zip(actual_lines, actual_attributes):
             actual_merged_lines.append(actual_line)
             actual_merged_lines.append(attribute_line)
@@ -265,7 +249,7 @@ class TestScreenLogic(unittest.TestCase):
         self.assert_equal_lines(test_name, actual_merged_lines, expected_merged_lines)
 
     def compare_lines_to_expected(
-        self, test_name: str, actual_lines: List[str]
+        self, test_name: str, actual_lines: list[str]
     ) -> None:
         self.output_if_not_file(test_name, "\n".join(actual_lines))
 
@@ -287,19 +271,15 @@ class TestScreenLogic(unittest.TestCase):
         self.fail(f"File outputted, please inspect {expected_file} for correctness")
 
     def assert_equal_num_lines(
-        self, test_name: str, actual_lines: List[str], expected_lines: List[str]
+        self, test_name: str, actual_lines: list[str], expected_lines: list[str]
     ) -> None:
-        self.assertEqual(
-            len(actual_lines),
-            len(expected_lines),
-            (
-                f"{test_name} test: Actual lines was {len(actual_lines)} "
-                f"but expected lines was {len(expected_lines)}"
-            ),
+        assert len(actual_lines) == len(expected_lines), (
+            f"{test_name} test: Actual lines was {len(actual_lines)} "
+            f"but expected lines was {len(expected_lines)}"
         )
 
     def assert_equal_lines(
-        self, test_name: str, actual_lines: List[str], expected_lines: List[str]
+        self, test_name: str, actual_lines: list[str], expected_lines: list[str]
     ) -> None:
         self.assert_equal_num_lines(test_name, actual_lines, expected_lines)
         expected_file = TestScreenLogic.get_expected_file(test_name)
@@ -315,14 +295,14 @@ class TestScreenLogic(unittest.TestCase):
                     expected_line[: -len(glob_needle)], actual_line, error_message
                 )
             else:
-                self.assertEqual(expected_line, actual_line, error_message)
+                assert expected_line == actual_line, error_message
 
     def assert_equal_with_glob(
         self, expected_line: str, actual_line: str, error_message: str
     ) -> None:
         # Escape all regex symbols and replace "*" with ".*"
         pattern = ".*".join(map(re.escape, expected_line.split("*")))
-        self.assertTrue(re.match(pattern, actual_line), error_message)
+        assert re.match(pattern, actual_line), error_message
 
     @staticmethod
     def get_expected_file(test_name: str) -> str:

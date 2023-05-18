@@ -99,6 +99,7 @@ def join_files_into_command_with_entry_point(
     entry_points = importlib.metadata.entry_points(group="pathpicker.editor")
     entry_point = entry_points[entry_point_name].load()
     composed_command = entry_point(files_and_line_numbers)
+    assert isinstance(composed_command, str)
     return composed_command
 
 
