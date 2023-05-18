@@ -5,8 +5,7 @@
 import os
 from typing import Dict, List, Optional, Tuple
 
-import choose
-import process_input
+from pathpicker import choose, process_input
 from pathpicker.line_format import LineBase
 from pathpicker.screen_flags import ScreenFlags
 from tests.lib.curses_api import CursesForTest

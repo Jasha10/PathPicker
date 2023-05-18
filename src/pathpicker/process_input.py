@@ -7,11 +7,11 @@ import pickle
 import sys
 from typing import Dict, List
 
-from pathpicker import parse, state_files
-from pathpicker.formatted_text import FormattedText
-from pathpicker.line_format import LineBase, LineMatch, SimpleLine
-from pathpicker.screen_flags import ScreenFlags
-from pathpicker.usage_strings import USAGE_STR
+from . import parse, state_files
+from .formatted_text import FormattedText
+from .line_format import LineBase, LineMatch, SimpleLine
+from .screen_flags import ScreenFlags
+from .usage_strings import USAGE_STR
 
 
 def get_line_objs(flags: ScreenFlags) -> Dict[int, LineBase]:

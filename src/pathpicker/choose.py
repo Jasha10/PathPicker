@@ -8,12 +8,12 @@ import pickle
 import sys
 from typing import Dict, List, Optional
 
-from pathpicker import logger, output, screen_control, state_files
-from pathpicker.curses_api import CursesApi, CursesApiBase
-from pathpicker.key_bindings import KeyBindings, read_key_bindings
-from pathpicker.line_format import LineBase, LineMatch
-from pathpicker.screen import CursesScreen, ScreenBase
-from pathpicker.screen_flags import ScreenFlags
+from . import logger, output, screen_control, state_files
+from .curses_api import CursesApi, CursesApiBase
+from .key_bindings import KeyBindings, read_key_bindings
+from .line_format import LineBase, LineMatch
+from .screen import CursesScreen, ScreenBase
+from .screen_flags import ScreenFlags
 
 LOAD_SELECTION_WARNING = """
 WARNING! Loading the standard input and previous selection
