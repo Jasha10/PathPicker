@@ -1,0 +1,1 @@
+- [ ] Add an option to automatically select the file if there is only one file to pick from
