@@ -1,0 +1,1 @@
+- Return a non-zero exit code if no lines are matched
