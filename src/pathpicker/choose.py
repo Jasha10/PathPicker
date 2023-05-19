@@ -66,7 +66,7 @@ def get_line_objs() -> Dict[int, LineBase]:
     ]
     if not matches:
         output.write_to_file('echo "No lines matched!";')
-        output.append_exit(1)  # exit with nonzero status to indicate failure to match
+        output.append_exit(1)  # exit code of 1 to indicate failure to match
         sys.exit(0)
     return line_objs
 
