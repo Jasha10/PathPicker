@@ -1,1 +1,3 @@
 - [ ] Add an option to automatically select the file if there is only one file to pick from
+- [ ] The fpp process should return a non-zero exit code if no lines are matched
+- [ ] The fpp process should return a non-zero exit code if the process is interrupted (e.g. with Ctrl+C)
