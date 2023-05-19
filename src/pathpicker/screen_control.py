@@ -597,6 +597,10 @@ class Controller:
         return self.stdscr.getstr(begin_height + 3, 0, max_x)
 
     def begin_enter_command(self) -> None:
+        """
+        User to interactively enter a command
+        (after pressing `c` button when in SELECT_MODE)
+        """
         self.stdscr.erase()
         # first check if they are trying to enter command mode
         # but already have a command...
