@@ -21,7 +21,7 @@ from pathpicker.screen_flags import ScreenFlags
 def signal_handler(_sig: int, _frame: FrameType) -> None:
     # from http://stackoverflow.com/a/1112350/948126
     # Lets just quit rather than signal.SIGINT printing the stack
-    sys.exit(0)
+    sys.exit(2)
 
 
 signal.signal(signal.SIGINT, signal_handler)

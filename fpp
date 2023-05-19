@@ -46,6 +46,9 @@ function doProgram {
   exec 0<&-
 
   $PYTHONCMD -m "pathpicker.choose" "$@" < /dev/tty
+  # If pathpicker.choose had non-zero exit code, exit now
+  _exit_code=$?
+  if [[ $_exit_code != 0 ]]; then exit $_exit_code; fi
   # Determine if running from within vim shell
   IFLAG=""
   if [ -z "$VIMRUNTIME" -a "$NONINTERACTIVE" = false ]; then
