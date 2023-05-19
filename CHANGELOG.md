@@ -2,4 +2,4 @@
 
 Most recent updates first.
 
-- Fpp now returns a non-zero exit code if no lines are matched.
+- Fpp now returns a non-zero exit code (i.e. 1) if no lines are matched.
