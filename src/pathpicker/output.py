@@ -195,17 +195,24 @@ def append_to_file(command: str) -> None:
     logger.output()
 
 
-def append_exit() -> None:
-    # The `$SHELL` environment variable points to the default shell,
-    # not the current shell. But they are often the same. And there
-    # is no other simple and reliable way to detect the current shell.
-    shell = os.environ["SHELL"]
-    # ``csh``, fish`` and, ``rc`` uses ``$status`` instead of ``$?``.
-    if shell.endswith("csh") or shell.endswith("fish") or shell.endswith("rc"):
-        exit_status = "$status"
-    # Otherwise we assume a Bournal-like shell, e.g. bash and zsh.
-    else:
-        exit_status = "$?"
+def append_exit(exit_status: int | None = None) -> None:
+    """
+    Append the command `exit {exit_status};` to the output file.
+
+    If `exit_status` is `None`, then the exit status of the last
+    command is used.
+    """
+    if exit_status is None:
+        # The `$SHELL` environment variable points to the default shell,
+        # not the current shell. But they are often the same. And there
+        # is no other simple and reliable way to detect the current shell.
+        shell = os.environ["SHELL"]
+        # ``csh``, fish`` and, ``rc`` uses ``$status`` instead of ``$?``.
+        if shell.endswith("csh") or shell.endswith("fish") or shell.endswith("rc"):
+            exit_status = "$status"
+        # Otherwise we assume a Bournal-like shell, e.g. bash and zsh.
+        else:
+            exit_status = "$?"
     append_to_file(f"exit {exit_status};")
 
 
