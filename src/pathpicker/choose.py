@@ -31,8 +31,8 @@ def do_program(
     curses_api: Optional[CursesApiBase] = None,
     line_objs: Optional[Dict[int, LineBase]] = None,
 ) -> None:
-    # curses and lineObjs get dependency injected for
-    # our tests, so init these if they are not provided
+    # curses and lineObjs and key_bindings get dependency injected
+    # for our tests, so init these if they are not provided
     if not key_bindings:
         key_bindings = read_key_bindings()
     if not curses_api:
