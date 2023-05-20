@@ -382,6 +382,7 @@ class Controller:
         self.helper_chrome.output_description(self.line_matches[self.hover_index])
 
     def control(self) -> None:
+        self.skip_selection()
         execute_keys = self.flags.get_execute_keys()
 
         # we start out by printing everything we need to
@@ -635,6 +636,13 @@ class Controller:
         line_objs = self.get_paths_to_use()
         output.exec_composed_command(command, line_objs)
         sys.exit(0)
+
+    def skip_selection(self) -> None:
+        """If there's just one match, just select it. Skip the selection screen"""
+        if self.flags.get_skip_selection() and self.num_matches == 1:
+            self.line_matches[0].set_select(True)
+            self.on_enter()
+
 
     def on_enter(self) -> None:
         line_objs = self.get_paths_to_use()

@@ -43,6 +43,9 @@ class ScreenFlags:
     def get_keep_open(self) -> bool:
         return bool(self.args.keep_open)
 
+    def get_skip_selection(self) -> bool:
+        return bool(self.args.skip)
+
     @staticmethod
     def get_arg_parser() -> argparse.ArgumentParser:
         parser = argparse.ArgumentParser(prog="fpp")
@@ -148,6 +151,14 @@ subshell, like a normal shell script.""",
             action="store_true",
             help="""Automatically select all available lines
 once the interactive editor has been entered.""",
+        )
+        parser.add_argument(
+            "-s",
+            "--skip-selection",
+            default=False,
+            action="store_true",
+            help="""If there is just one candidate file path to choose from, skip the
+interactive file selection screen and automatically select that file.""",
         )
         return parser
 
