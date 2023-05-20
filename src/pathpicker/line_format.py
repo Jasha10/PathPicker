@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 
 class LineBase(ABC):
+    """One line of the text that was input to fpp"""
     def __init__(self) -> None:
         self.controller: Optional["Controller"] = None
 
@@ -32,7 +33,14 @@ class LineBase(ABC):
 
 
 class SimpleLine(LineBase):
+    """A line of text that was input to fpp and
+    does not contain any candidate file names"""
     def __init__(self, formatted_line: FormattedText, index: int):
+        """
+        Args:
+            ...
+            index: The index of the current line in the input text, starting with 0
+        """
         super().__init__()
         self.formatted_line = formatted_line
         self.index = index
@@ -54,6 +62,8 @@ class SimpleLine(LineBase):
 
 
 class LineMatch(LineBase):
+    """A line of text that was input to fpp
+    and does contains a candidate file name"""
     ARROW_DECORATOR = "|===>"
     # this is inserted between long files, so it looks like
     # ./src/foo/bar/something|...|baz/foo.py
@@ -67,6 +77,12 @@ class LineMatch(LineBase):
         validate_file_exists: bool = False,
         all_input: bool = False,
     ):
+        """
+        Args:
+            ...
+            index: The index of the current line in the input text, starting with 0
+            ...
+        """
         super().__init__()
 
         self.formatted_line = formatted_line
