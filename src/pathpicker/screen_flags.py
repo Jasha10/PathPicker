@@ -44,7 +44,7 @@ class ScreenFlags:
         return bool(self.args.keep_open)
 
     def get_skip_selection(self) -> bool:
-        return bool(self.args.skip)
+        return bool(self.args.skip_selection)
 
     @staticmethod
     def get_arg_parser() -> argparse.ArgumentParser:
